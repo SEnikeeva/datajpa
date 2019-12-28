@@ -32,13 +32,14 @@ public class GameWithHuman {
     private GraphicsContext context;
     private int ballYSpeed = 1;
     private int ballXSpeed = 1;
+    private boolean role;
     private double playerOneYPos = HEIGHT / 2;
     private double playerTwoYPos = HEIGHT / 2;
     private double ballXPos = WIDTH / 2;
     private double ballYPos = HEIGHT / 2;
     private int scoreP1 = 0;
     private int scoreP2 = 0;
-    private boolean gameStarted;
+    private boolean gameStarted = false;
     private int playerOneXPos = 0;
     private double playerTwoXPos = WIDTH - PLAYER_WIDTH;
     private PrintWriter out;
@@ -74,26 +75,85 @@ public class GameWithHuman {
             }
         });
         canvas.setOnMouseClicked(e ->  gameStarted = true);
+        /*canvas.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                out.println("let's start");
+                while (!gameStarted) {
+                    try {
+                        String inp = in.readLine();
+                        System.out.println(inp);
+                        if (inp.equals("okay"))
+                            gameStarted = true;
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            }
+        });*/
         stage.setScene(new Scene(new StackPane(canvas)));
         stage.show();
         tl.play();
     }
 
     private void run(GraphicsContext gc) {
+        out.println("coordinates:" + ballXPos + ":" + ballYPos);
+        String[] coordinates;
+        try {
+            coordinates = in.readLine().split(":");
+            role = Boolean.parseBoolean(coordinates[0]);
+            playerTwoYPos =Integer.parseInt(coordinates[1]);
+            ballXPos = Integer.parseInt(coordinates[2]);
+            ballYPos = Integer.parseInt(coordinates[3]);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         gc.setFill(Color.BLUEVIOLET);
         gc.fillRect(0, 0, WIDTH, HEIGHT);
 
         gc.setFill(Color.CORNFLOWERBLUE);
         gc.setFont(Font.font(25));
+
+
         if(gameStarted) {
-            ballXPos += ballXSpeed;
-            ballYPos += ballYSpeed;
+
+            if (role) {
+                ballXPos += ballXSpeed;
+                ballYPos += ballYSpeed;
+            }
+
             gc.fillOval(ballXPos, ballYPos, BALL_R, BALL_R);
 
+            if((ballYPos > HEIGHT || ballYPos < 0) && role) ballYSpeed *=-1;
+            if(ballXPos < playerOneXPos - PLAYER_WIDTH) {
+                scoreP2++;
+                gameStarted = false;
+                //out.println("stop");
+            }
+
+            if(ballXPos > playerTwoXPos + PLAYER_WIDTH) {
+                scoreP1++;
+                gameStarted = false;
+            }
+            if (role) {
+                if( ((ballXPos + BALL_R > playerTwoXPos) && ballYPos >= playerTwoYPos && ballYPos <= playerTwoYPos + PLAYER_HEIGHT) ||
+                        ((ballXPos < playerOneXPos + PLAYER_WIDTH) && ballYPos >= playerOneYPos && ballYPos <= playerOneYPos + PLAYER_HEIGHT)) {
+                    ballYSpeed += 1 * Math.signum(ballYSpeed);
+                    ballXSpeed += 1 * Math.signum(ballXSpeed);
+                    ballXSpeed *= -1;
+                }
+            }
+
         } else {
+            String text;
             gc.setStroke(Color.WHITE);
             gc.setTextAlign(TextAlignment.CENTER);
-            gc.strokeText("Click for start", WIDTH / 2, HEIGHT / 2);
+            if (role) {
+                 text = "Click for start";
+            }
+            else text = "Click for start and wait for player one";
+            gc.strokeText(text, WIDTH / 2, HEIGHT / 2);
 
             ballYPos = HEIGHT / 2;
             ballXPos = WIDTH / 2;
@@ -103,24 +163,8 @@ public class GameWithHuman {
         }
 
         gc.fillOval(ballXPos, ballYPos, BALL_R, BALL_R);
-        if(ballYPos > HEIGHT || ballYPos < 0) ballYSpeed *=-1;
+
         gc.fillText(scoreP1 + "\t\t\t\t\t\t\t\t" + scoreP2, WIDTH / 2, 100);
-        if(ballXPos < playerOneXPos - PLAYER_WIDTH) {
-            scoreP2++;
-            gameStarted = false;
-        }
-
-        if(ballXPos > playerTwoXPos + PLAYER_WIDTH) {
-            scoreP1++;
-            gameStarted = false;
-        }
-
-        if( ((ballXPos + BALL_R > playerTwoXPos) && ballYPos >= playerTwoYPos && ballYPos <= playerTwoYPos + PLAYER_HEIGHT) ||
-                ((ballXPos < playerOneXPos + PLAYER_WIDTH) && ballYPos >= playerOneYPos && ballYPos <= playerOneYPos + PLAYER_HEIGHT)) {
-            ballYSpeed += 1 * Math.signum(ballYSpeed);
-            ballXSpeed += 1 * Math.signum(ballXSpeed);
-            ballXSpeed *= -1;
-        }
         gc.fillRect(playerTwoXPos, playerTwoYPos, PLAYER_WIDTH, PLAYER_HEIGHT);
         gc.fillRect(playerOneXPos, playerOneYPos, PLAYER_WIDTH, PLAYER_HEIGHT);
     }

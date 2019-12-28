@@ -23,8 +23,6 @@ public class StartTask extends TimerTask {
     @Override
     public void run() {
         Platform.runLater(() -> {
-            System.out.println("im here");
-            //controller.setGameStarted(true);
             PrintWriter out;
             BufferedReader in;
             try {
@@ -32,10 +30,8 @@ public class StartTask extends TimerTask {
                 out.println("should i start?");
                 in = new BufferedReader(new InputStreamReader(controller.getSocket().getInputStream()));
                 String inputLine = in.readLine();
-                System.out.println(inputLine);
                 if (inputLine.equals("let it snow")) {
                     controller.setGameStarted(true);
-                    System.out.println("and now im here");
                     new GameWithHuman().start(controller.getSocket());
                     controller.start.getScene().getWindow().hide();
                     controller.getTimer().cancel();
