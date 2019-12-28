@@ -75,23 +75,6 @@ public class GameWithHuman {
             }
         });
         canvas.setOnMouseClicked(e ->  gameStarted = true);
-        /*canvas.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                out.println("let's start");
-                while (!gameStarted) {
-                    try {
-                        String inp = in.readLine();
-                        System.out.println(inp);
-                        if (inp.equals("okay"))
-                            gameStarted = true;
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-            }
-        });*/
         stage.setScene(new Scene(new StackPane(canvas)));
         stage.show();
         tl.play();
@@ -104,8 +87,10 @@ public class GameWithHuman {
             coordinates = in.readLine().split(":");
             role = Boolean.parseBoolean(coordinates[0]);
             playerTwoYPos =Integer.parseInt(coordinates[1]);
-            ballXPos = Integer.parseInt(coordinates[2]);
+            ballXPos = role? Integer.parseInt(coordinates[2]): 800 -Integer.parseInt(coordinates[2]) ;
             ballYPos = Integer.parseInt(coordinates[3]);
+
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -115,56 +100,73 @@ public class GameWithHuman {
         gc.setFill(Color.CORNFLOWERBLUE);
         gc.setFont(Font.font(25));
 
+        if (role) {
+            if(gameStarted) {
 
-        if(gameStarted) {
-
-            if (role) {
                 ballXPos += ballXSpeed;
                 ballYPos += ballYSpeed;
-            }
 
-            gc.fillOval(ballXPos, ballYPos, BALL_R, BALL_R);
+                if((ballYPos > HEIGHT || ballYPos < 0)) ballYSpeed *=-1;
 
-            if((ballYPos > HEIGHT || ballYPos < 0) && role) ballYSpeed *=-1;
-            if(ballXPos < playerOneXPos - PLAYER_WIDTH) {
-                scoreP2++;
-                gameStarted = false;
-                //out.println("stop");
-            }
+                if(ballXPos < playerOneXPos - PLAYER_WIDTH) {
+                    scoreP2++;
+                    gameStarted = false;
+                    //out.println("stop");
+                }
 
-            if(ballXPos > playerTwoXPos + PLAYER_WIDTH) {
-                scoreP1++;
-                gameStarted = false;
-            }
-            if (role) {
+                if(ballXPos > playerTwoXPos + PLAYER_WIDTH) {
+                    scoreP1++;
+                    gameStarted = false;
+                }
+
                 if( ((ballXPos + BALL_R > playerTwoXPos) && ballYPos >= playerTwoYPos && ballYPos <= playerTwoYPos + PLAYER_HEIGHT) ||
                         ((ballXPos < playerOneXPos + PLAYER_WIDTH) && ballYPos >= playerOneYPos && ballYPos <= playerOneYPos + PLAYER_HEIGHT)) {
                     ballYSpeed += 1 * Math.signum(ballYSpeed);
                     ballXSpeed += 1 * Math.signum(ballXSpeed);
                     ballXSpeed *= -1;
                 }
-            }
 
+
+            } else {
+                String text;
+                gc.setStroke(Color.WHITE);
+                gc.setTextAlign(TextAlignment.CENTER);
+                if (role) {
+                    text = "Click for start";
+                }
+                else text = "Click for start and watch in player's one screen";
+                gc.strokeText(text, WIDTH / 2, HEIGHT / 2);
+
+                ballYPos = HEIGHT / 2;
+                ballXPos = WIDTH / 2;
+                if (role) {
+                    ballXSpeed = new Random().nextInt(2) == 0 ? 1: -1;
+                    ballYSpeed = new Random().nextInt(2) == 0 ? 1: -1;
+                }
+
+            }
         } else {
-            String text;
-            gc.setStroke(Color.WHITE);
-            gc.setTextAlign(TextAlignment.CENTER);
-            if (role) {
-                 text = "Click for start";
+            if (!gameStarted) {
+                String text = "Click for start and watch in player's one screen";
+                gc.strokeText(text, WIDTH / 2, HEIGHT / 2);
+            } else  {
+
+                if(ballXPos < playerOneXPos - PLAYER_WIDTH) {
+                    scoreP2++;
+                    gameStarted = false;
+                }
+
+                if(ballXPos > playerTwoXPos + PLAYER_WIDTH) {
+                    scoreP1++;
+                    gameStarted = false;
+                }
             }
-            else text = "Click for start and wait for player one";
-            gc.strokeText(text, WIDTH / 2, HEIGHT / 2);
 
-            ballYPos = HEIGHT / 2;
-            ballXPos = WIDTH / 2;
-
-            ballXSpeed = new Random().nextInt(2) == 0 ? 1: -1;
-            ballYSpeed = new Random().nextInt(2) == 0 ? 1: -1;
         }
-
         gc.fillOval(ballXPos, ballYPos, BALL_R, BALL_R);
 
         gc.fillText(scoreP1 + "\t\t\t\t\t\t\t\t" + scoreP2, WIDTH / 2, 100);
+
         gc.fillRect(playerTwoXPos, playerTwoYPos, PLAYER_WIDTH, PLAYER_HEIGHT);
         gc.fillRect(playerOneXPos, playerOneYPos, PLAYER_WIDTH, PLAYER_HEIGHT);
     }
