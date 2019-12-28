@@ -54,6 +54,7 @@ public class MultiServer {
         private Socket clientSocket;
         private BufferedReader in;
         private boolean inGame = false;
+        private boolean over = true;
         private PrintWriter out;
         private Game game;
 
@@ -93,7 +94,13 @@ public class MultiServer {
                     } else if (inputLine.equals("should i start?")) {
                         startOrNot();
                     } else if (inputLine.startsWith("y")) {
+                        setCoordinates(inputLine);
+                    } else if (inputLine.startsWith("coordinates")) {
                         sendCoordinates(inputLine);
+                    } else if (inputLine.equals("let's start")) {
+                        restart();
+                    } else if (inputLine.equals("stop")) {
+                        over = true;
                     }
                 }
                 in.close();
@@ -153,7 +160,7 @@ public class MultiServer {
             }
         }
 
-        private void sendCoordinates(String inputLine) {
+        private void setCoordinates(String inputLine) {
             if (user.equals(game.getP1())) {
                 game.setP1Y(Integer.parseInt(inputLine.split(":")[1].substring(0, inputLine.length() - 4)));
                 out.println("x:" + game.getP2Y());
@@ -162,5 +169,32 @@ public class MultiServer {
                 out.println("x:" + game.getP1Y());
             }
         }
+        private void sendCoordinates(String inputLine) {
+            System.out.println(user.getLogin() + ":" + inputLine);
+            if (user.equals(game.getP1())) {
+                String[] coordinates = inputLine.split(":");
+                game.setBX(Integer.parseInt(coordinates[1].substring(0, coordinates[1].length() - 2)));
+                game.setBY(Integer.parseInt(coordinates[2].substring(0, coordinates[2].length() - 2)));
+                out.println("true:" + game.getP2Y() + ":" + game.getBX() + ":" + game.getBY());
+            } else {
+                out.println("false:" + game.getP1Y() + ":" + game.getBX() + ":" + game.getBY());
+            }
+        }
+
+        private void restart() {
+            over = false;
+            for (ClientHandler client : clients) {
+                if (client.user.equals(game.getP1()) || client.user.equals(game.getP2())) {
+                    if (client.over) {
+                        out.println("not yet");
+                    } else {
+                        out.println("okay");
+                    }
+                }
+            }
+
+
+        }
+
     }
 }

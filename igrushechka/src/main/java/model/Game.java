@@ -18,5 +18,6 @@ public class Game {
     private int p2Y;
     private User p1;
     private User p2;
-
+    private int bY;
+    private int bX;
 }
