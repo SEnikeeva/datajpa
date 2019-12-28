@@ -170,9 +170,10 @@ public class MultiServer {
             }
         }
         private void sendCoordinates(String inputLine) {
-            System.out.println(user.getLogin() + ":" + inputLine);
+
+            String[] coordinates = inputLine.split(":");
+
             if (user.equals(game.getP1())) {
-                String[] coordinates = inputLine.split(":");
                 game.setBX(Integer.parseInt(coordinates[1].substring(0, coordinates[1].length() - 2)));
                 game.setBY(Integer.parseInt(coordinates[2].substring(0, coordinates[2].length() - 2)));
                 out.println("true:" + game.getP2Y() + ":" + game.getBX() + ":" + game.getBY());
