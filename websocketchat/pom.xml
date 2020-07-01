@@ -24,7 +24,7 @@
 
     <properties>
 
-        <log4j.version>2.13.1</log4j.version>
+        <log4j.version>2.13.3</log4j.version>
         <spring.jpa.version>2.2.6.RELEASE</spring.jpa.version>
         <spring.core.version>5.2.5.RELEASE</spring.core.version>
     </properties>
